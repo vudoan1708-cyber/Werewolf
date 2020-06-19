@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "name": "werewolf",
+  "version": "1.0.0",
+  "description": "A Webgame that emulates a board game called Werewolf",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js"
+  },
+  "keywords": [
+    "game",
+    "werewolf"
+  ],
+  "author": "Vu Doan",
+  "license": "MIT"
+}
