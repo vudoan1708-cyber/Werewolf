@@ -6,22 +6,59 @@ class Cards {
         this.h = h;
         this.img = img;
         this.back_img = back_img;
-        this.revealed = false;
+        this.clicked = false;
     }
 
-    show(bool) {
-        if (this.revealed != bool) {
-            if (bool) this.revealed = bool;
-            image(this.img, this.x, this.y, this.w, this.h);
-            // console.log(this.revealed)
-        } else {
-            image(this.back_img, this.x, this.y, this.w, this.h);
-        }
+    show(clicked, hovered) {
+
+        push();
+
+            imageMode(CENTER);
+
+            translate(this.x, this.y);
+
+            // check if a card is chosen
+            if (this.clicked != clicked) {
+
+                // only re-assign the variable if the boolean variable is true
+                if (clicked && !cardRevealed) {
+                    this.clicked = clicked;
+                }
+
+                // draw cards at normal sizes
+                image(this.img, 0, 0, this.w, this.h);
+
+            // otherwise
+            } else {
+
+                // check if a card is not hovered
+                if (!hovered) {
+                
+                    // draw the back of the cards at normal sizes
+                    image(this.back_img, 0, 0, this.w, this.h);
+
+                // otherwise
+                } else {     
+                    push();
+
+                        // if a player has not chosen a card
+                        if (!cardRevealed)
+
+                            // scale the hovered card
+                            scale(1.1, 1.1);
+
+                        // draw the back of the cards
+                        image(this.back_img, 0, 0, this.w, this.h);
+                    pop();
+                }
+            }
+
+        pop();
     }
 
     mouseOn() {
-        if (mouseX > this.x && mouseX < this.x + this.w) {
-            if (mouseY > this.y && mouseY < this.y + this.h) {
+        if (mouseX > this.x - this.w / 2 && mouseX < this.x + this.w / 2) {
+            if (mouseY > this.y - this.h / 2 && mouseY < this.y + this.h / 2) {
                 return true;
             }
         } return false;

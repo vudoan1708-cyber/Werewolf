@@ -13,14 +13,26 @@ server.listen(port, () => { console.log('listening on port ' + port); });
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.json({ limit: '1mb' }));
 
+// port
 app.get('/socket/', function(request, response) {
     
     // send the response with the environment port to the client side
     response.json(port);
 })
 
-io.sockets.on('connection', newConnection);
-
-function newConnection(socket) {
+io.sockets.on('connection', (socket) => {
     console.log('new connection ' + socket.id);
-}
+
+    // receives a message
+    socket.on('mouse', (data) => {
+        
+        // send the message back out
+        socket.broadcast.emit('mouse', data);
+    })
+
+    // limit number of concurrent connection
+    if (socket.conn.server.clientsCount > 8) {
+        console.log(socket.conn.server.clientsCount)
+        io.close();
+    }
+});
