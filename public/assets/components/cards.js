@@ -7,13 +7,12 @@ class Cards {
         this.img = img;
         this.back_img = back_img;
         this.clicked = false;
+        this.vel = 0;
     }
 
     show(clicked, hovered) {
 
         push();
-
-            imageMode(CENTER);
 
             translate(this.x, this.y);
 
@@ -62,5 +61,14 @@ class Cards {
                 return true;
             }
         } return false;
+    }
+
+    move() {
+        
+        if (this.y > height / 5) {
+            this.y -= this.vel;
+            this.vel++;
+            return true;
+        } else return false;
     }
 }

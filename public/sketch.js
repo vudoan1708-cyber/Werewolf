@@ -6,27 +6,35 @@ let num_players = 8; // hard coded for now, this will be decided by the host bef
 let cardImgs = [],
     back_cardImgs = [];
 
-// booleans
-let cardRevealed = false;
-
 // socket.io
 let socket;
 
+// game modes
+let mode = 1;
+
+let cardRevealed = false;
+
 async function getSocket() {
     const response = await fetch('/socket/');
-    const port = await response.json();
-    socket = io.connect('http://localhost:' + port);
-    socket.on('mouse', updateSketch);
+    const host = await response.json();
+    socket = io.connect('http://' + host);
+    socket.on('mouse', movingCards);
+    socket.on('shuffle', shuffleCards);
 }
 
-function updateSketch(data) {
+function movingCards(data) {
+    console.log(data)
+    // if the y coordinate of a card is still less than height / 4
+    // keep moving it
+    // if (cards[data.index].move()) {
+        
+    //     cards[data.index].show(true, false);
 
-    for (let i = cards.length - 1; i >= 0; i--) {
-
-        if (i == data.index) {
-            cards.splice(data.index, 1);
-        }
-    }
+    //     // and loop this function till the condition is no longer satisfied
+    //     setTimeout(() => {
+    //         movingCards(data);
+    //     }, 20);
+    // }
 }
 
 function preload() {
@@ -53,7 +61,7 @@ async function setup() {
     await getSocket();
 
     // shuffle the cards position
-    shuffleCards();
+    // shuffleCards();
 
     // append new card instances from the card object to the array
     // and draw the images on the canvas
@@ -66,6 +74,8 @@ async function setup() {
         // draw each card next to each other
         cards[i] = new Cards(x, y, w, h, cardImgs[i], back_cardImgs[i]);
     }
+
+    imageMode(CENTER);
 }
 
 function displayCards() {
@@ -90,9 +100,19 @@ function displayCards() {
     }
 }
 
+// welcome screen
+function welcomeScreen() {
+    push();
+        
+    pop()
+}
+
 function draw() {
     background(100);
-    displayCards();
+
+    if (mode == 0) {
+        welcomeScreen();
+    } else displayCards();
 }
 
 function mousePressed() {
@@ -103,7 +123,7 @@ function mousePressed() {
 
         // check if one of them is clicked
         if (cards[i].mouseOn()) {
-
+            
             if (!cardRevealed) {
 
                 // reveal the card and not enlarge it
@@ -115,14 +135,15 @@ function mousePressed() {
                 // switch on a global variable to prevent players
                 // from choosing many cards
                 cardRevealed = true;
+
+                // create a data object
+                let data = {
+                    index
+                };
+
+                // emit to the server side
+                socket.emit('mouse', data);
             }
         }
     }
-    console.log(index);
-
-    // create a data object
-    let data = {
-        index
-    };
-    socket.emit('mouse', data);
 }

@@ -9,6 +9,10 @@ const path = require('path');
 const socket = require('socket.io');
 const io = socket(server);
 
+let counter = 0;
+let history = [],
+    client = [];
+
 server.listen(port, () => { console.log('listening on port ' + port); });
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(express.json({ limit: '1mb' }));
@@ -17,16 +21,25 @@ app.use(express.json({ limit: '1mb' }));
 app.get('/socket/', function(request, response) {
     
     // send the response with the environment port to the client side
-    response.json(port);
-})
+    response.json(request.headers.host);
+});
 
 io.sockets.on('connection', (socket) => {
     console.log('new connection ' + socket.id);
 
+    client.push({id : socket.client.id})
+
+    let getClientID = client.find(e => (e.id === socket.client.id))
+    if (getClientID)
+        socket.emit('mouse', history);
+        
     // receives a message
     socket.on('mouse', (data) => {
         
-        // send the message back out
+        // append data to the history variable
+        history.push(data);
+
+        // send the message back out to all clients except one that's connecting
         socket.broadcast.emit('mouse', data);
     })
 
@@ -34,5 +47,8 @@ io.sockets.on('connection', (socket) => {
     if (socket.conn.server.clientsCount > 8) {
         console.log(socket.conn.server.clientsCount)
         io.close();
+    } else {
+        counter++;
+        console.log(counter);
     }
 });
